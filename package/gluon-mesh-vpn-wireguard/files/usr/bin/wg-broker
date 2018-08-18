@@ -1,0 +1,62 @@
+#!/bin/sh
+run_broker() {
+  local interface="$1"
+  local pubkey="$2"
+  local port
+  local interval=5
+
+  group_peers=$(uci show wireguard|grep mesh_vpn_backbone_peer|grep =peer|cut -d"." -f2|cut -d= -f1)
+
+  for i in $group_peers
+  do
+    if [ $interface == $(uci get wireguard.$i.ifname) ]; then
+      thispeer=$i
+      break;
+    fi
+  done
+
+  localtime=$(date +%s)
+  if [[ -n $thispeer ]]; then
+
+    remote=$(uci get wireguard.$thispeer.remote)
+    brokerport=$(uci get wireguard.$thispeer.broker_port)
+    localport=$(wg show $interface listen-port)
+
+    serverreply="$(nc_timeout 10 $remote $brokerport "{\"version\":1, \"pubkey\":\"$pubkey\", \"localport\":$localport }")"
+
+    if [[ "x$serverreply" != "x" ]]; then
+      port=$(jsonfilter -s "$serverreply" -e "@.port")
+      servertime=$(jsonfilter -s "$serverreply" -e "@.time")
+      if [[ "x$servertime" != "x" && $((servertime - localtime)) -gt 240 ]]; then
+	# local clock differs a lot from the server clock.
+	# assuming ntp is working only when a tunnel is established we need to
+	# set the clock to  something in the proximity of the correct time.
+	# Let's assume servertime for now. ntpd will handle the rest
+	formatted_time=$(date -d @$servertime +%Y%m%d%H%M.%S)
+	date -s $formatted_time >/dev/null
+      fi
+
+      if [[ -z $port ]]; then
+	error=$(jsonfilter -s "$serverreply" -e "@.error")
+	if [[ -n $error ]]; then
+	  reason=$(jsonfilter -s "$serverreply" -e "@.error.reason")
+	  ecode=$(jsonfilter -s "$serverreply" -e "@.error.code")
+	  echo "received error [$ecode] from host $remote: $reason" >&2
+
+	  if [[ "$ecode" == "1" ]] ; then
+	    echo FULL
+	    return 1
+	  fi
+	fi
+      fi
+      echo $port
+      return 0
+    else
+      echo "Received no reply from server $remote" >&2
+      echo "ERROR"
+      return 255
+    fi
+  fi
+}
+
+run_broker $1 $(wg pubkey </lib/gluon/mesh-vpn/wireguard)

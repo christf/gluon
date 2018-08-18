@@ -1,0 +1,11 @@
+#!/bin/sh /etc/rc.common
+START=45
+USE_PROCD=1
+
+secretfile=/lib/gluon/mesh-vpn/wireguard
+
+start_service() {
+	if [[ ! -f "$secretfile" -o $(cat "$secretfile") == "generate" ]]; then
+		/usr/bin/wg genkey > "$secretfile"
+	fi
+}
