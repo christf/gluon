@@ -21,7 +21,7 @@ feature(_'web-wizard' and _'autoupdater', {
 	},
 })
 
-feature(_'web-wizard' and (_'mesh-vpn-fastd' or _'mesh-vpn-tunneldigger'), {
+feature(_'web-wizard' and (_'mesh-vpn-fastd' or _'mesh-vpn-tunneldigger' or _'mesh-vpn-wireguard'), {
 	packages = {
 		'gluon-config-mode-mesh-vpn',
 	},
