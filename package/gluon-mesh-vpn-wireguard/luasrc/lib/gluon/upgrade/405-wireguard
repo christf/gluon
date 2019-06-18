@@ -85,15 +85,10 @@ end
 
 add_groups('mesh_vpn', site.mesh_vpn.wireguard.groups())
 
-if site.mesh_vpn.wireguard.groups.backbone.enabled(true) then
-uci:section('wireguard', 'wireguard', 'mesh_vpn', {
-	enabled = true,
-	group = 'mesh_vpn_backbone',
-	mtu = site.mesh_vpn.mtu(),
-	secret = '/lib/gluon/mesh-vpn/wireguard',
-	packet_mark = 1,
-})
-end
+uci:set('wireguard', 'mesh_vpn', 'group', 'mesh_vpn_backbone')
+uci:set('wireguard', 'mesh_vpn', 'mtu', site.mesh_vpn.mtu())
+uci:set('wireguard', 'mesh_vpn', 'secret', '/lib/gluon/mesh-vpn/wireguard')
+uci:set('wireguard', 'mesh_vpn', 'packet_mark', 1)
 
 uci:save('network')
 uci:save('wireguard')

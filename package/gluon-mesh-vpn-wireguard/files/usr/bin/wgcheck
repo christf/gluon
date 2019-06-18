@@ -10,6 +10,11 @@ get_connection_count() {
   get_wg_interfaces|wc -l
 }
 
+get_backbone_connection_count() {
+# TODO: filter for devices of peer-group mesh_vpn_backbone
+  ubus -S call network.interface dump | jsonfilter -e '@.interface[@.up=true && @.proto="gluon_wireguard" && @.].l3_device'
+}
+
 get_interface_from_ifname() {
   ubus -S call network.interface dump | jsonfilter -e "@.interface[@.proto=\"gluon_wireguard\" && @.l3_device=\"$1\"].interface"
 }
@@ -30,9 +35,10 @@ do
 done
 
 # in case less than our peer-limit connections is "up", start all wg interfaces that are currently down
-if [[ $(uci get wireguard.mesh_vpn.enabled) == "1" ]] &&
-   [[ $(get_connection_count) -lt $(uci get wireguard.mesh_vpn_backbone.peer_limit) ]]; then
-  if [[ $(get_connection_count) -gt 0 ]]; then
+if [[ $(uci get wireguard.mesh_vpn_backbone.enabled) == "1" ]] &&
+   [[ $(uci get wireguard.mesh_vpn.enabled) == "1" ]] &&
+   [[ $(get_backbone_connection_count) -lt $(uci get wireguard.mesh_vpn_backbone.peer_limit) ]]; then
+  if [[ $(get_backbone_connection_count) -gt 0 ]]; then
     # it is ok to wait for a backup vpn connection. This sleep spreads the load for the servers
     max=280
     n=99999
