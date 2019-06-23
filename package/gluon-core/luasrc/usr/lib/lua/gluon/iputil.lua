@@ -75,10 +75,10 @@ function IPv6(address)
 	end
 end
 
-function mac_to_ip(prefix, mac)
+function generate_ip_from_prefix(prefix, mac, firstbyte, secondbyte)
 	local m1, m2, m3, m6, m7, m8 = string.match(mac, '(%x%x):(%x%x):(%x%x):(%x%x):(%x%x):(%x%x)')
-	local m4 = 0xff
-	local m5 = 0xfe
+	local m4 = firstbyte
+	local m5 = secondbyte
 	m1 = bit.bxor(tonumber(m1, 16), 0x02)
 
 	local h1 = 0x100 * m1 + tonumber(m2, 16)
@@ -92,5 +92,10 @@ function mac_to_ip(prefix, mac)
 	local p1, p2, p3, p4, p5, p6, p7, p8 = IPv6(prefix)
 
 	return string.format("%x:%x:%x:%x:%x:%x:%x:%x/%d", p1, p2, p3, p4, h1, h2, h3, h4, 128)
+
+end
+
+function mac_to_ip(prefix, mac)
+	return generate_ip(prefix, mac, 0xff, 0xfe)
 end
 

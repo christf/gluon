@@ -18,7 +18,7 @@ local function generate_wg_iface_name(peer)
 end
 
 local function add_peer(group, name, config, count)
-  local ip = iputil.mac_to_ip("fe80::/64", sysconfig.primary_mac)
+  local ip = iputil.generate_ip_from_prefix("fe80::/64", sysconfig.primary_mac, 0x00, count)
 
   uci:section('network', 'interface', generate_section_name(name) .. 'm', {
     type = 'wireguard',
