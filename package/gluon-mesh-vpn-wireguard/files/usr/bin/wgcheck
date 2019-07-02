@@ -12,7 +12,7 @@ get_connection_count() {
 
 get_backbone_connection_count() {
 # TODO: filter for devices of peer-group mesh_vpn_backbone
-  ubus -S call network.interface dump | jsonfilter -e '@.interface[@.up=true && @.proto="gluon_wireguard" && @.].l3_device'
+  ubus -S call network.interface dump | jsonfilter -e '@.interface[@.up=true && @.proto="gluon_wireguard" && @].l3_device' | wc -l
 }
 
 get_interface_from_ifname() {
