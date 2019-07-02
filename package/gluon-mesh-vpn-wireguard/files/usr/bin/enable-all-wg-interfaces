@@ -5,7 +5,7 @@ get_down_wg_backbone_interfaces() {
   ubus -S call network.interface dump | jsonfilter -e '@.interface[@.up=false && @.proto="gluon_wireguard"].interface'
 }
 
-if [[ $(uci get wireguard.mesh_vpn_backbone.enabled) == "1" ]] &&
+if [[ $(uci get wireguard.mesh_vpn_backbone.enabled) == "1" ]]; then
   for i in $(get_down_wg_backbone_interfaces)
   do
     ifup $i
