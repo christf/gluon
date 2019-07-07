@@ -1,6 +1,9 @@
 #!/usr/bin/lua
 
 local site = require 'gluon.site'
+local uci = require('simple-uci').cursor()
+nodeip = string.gsub(uci:get('network', 'loopback', 'ip6addr'), "/128", "")
+
 local babelconf='/etc/gluon-babeld.conf'
 
 file = io.open(babelconf, "w")
@@ -22,4 +25,5 @@ if site.clat_range() then
 end
 file:write("redistribute local if br-wan deny\n")
 file:write("redistribute local ip 0.0.0.0/0 deny\n")
+file:write("install pref-src " .. nodeip .."\n")
 file:close()
