@@ -96,6 +96,6 @@ function generate_ip_from_prefix(prefix, mac, firstbyte, secondbyte)
 end
 
 function mac_to_ip(prefix, mac)
-	return generate_ip(prefix, mac, 0xff, 0xfe)
+	return generate_ip_from_prefix(prefix, mac, 0xff, 0xfe)
 end
 
