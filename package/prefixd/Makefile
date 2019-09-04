@@ -5,7 +5,7 @@ PKG_VERSION:=1
 
 PKG_BUILD_DIR := $(BUILD_DIR)/$(PKG_NAME)
 PKG_BUILD_DEPENDS := respondd
-# while respondd is not strictliy necessary at the moment, it will soon be
+# while respondd is not strictly necessary at the moment, it will soon be
 # because the shared prefix will be part of the respondd data.
 
 include ../gluon.mk
