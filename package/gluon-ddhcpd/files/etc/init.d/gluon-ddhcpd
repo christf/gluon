@@ -7,8 +7,6 @@ NAME=ddhcpd
 DAEMON=/usr/sbin/ddhcpd
 MAXDELAY=10
 
-
-
 validate_section_ddhcpd() {
   uci_validate_section "$NAME" ddhcpd settings \
   'dhcp_interface:string:br-client' \
