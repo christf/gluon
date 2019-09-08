@@ -17,6 +17,8 @@ file:write("redistribute ip " .. site.next_node.ip6() .. "/128 deny\n")
 file:write("redistribute ip " .. site.prefix6() .. " eq 128  allow\n")
 file:write("redistribute ip " .. site.node_client_prefix6() .. " eq 128  allow\n")
 file:write("redistribute ip " .. site.node_prefix6() .. " eq 128  allow\n")
+file:write("redistribute ip 2000::/3 allow\n")
+
 if site.plat_range() ~= nil and site.plat_range() ~= '' then
 	file:write("redistribute ip " .. site.plat_range() .. " eq 96  allow\n")
 end
