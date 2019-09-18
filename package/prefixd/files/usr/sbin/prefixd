@@ -141,7 +141,7 @@ then
 	shareprefix=$(uci get prefixd.ffshare1.prefix)
 	/usr/bin/ip -6 route add  default from $shareprefix dev br-wan metric 96 proto 48 table 11
 	echo "-C redistribute src-prefix $shareprefix allow" >/tmp/addn-babelopts
-	echotobabel "redistribute src-prefix $shareprefix allow" || { echo unable to connect to babeld >&2; exit 1 }
+	echotobabel "redistribute src-prefix $shareprefix allow" || { echo unable to connect to babeld >&2; exit 1 ; }
 	start_uradvd ${shareprefix}
 fi
 
