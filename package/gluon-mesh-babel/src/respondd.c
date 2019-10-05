@@ -235,13 +235,11 @@ static bool rtnl_handle_msg(const struct nlmsghdr *nh, struct kernel_route *rout
 	return false;
 }
 
-static struct json_object * get_default_route(void) {
-
-	struct json_object *ret = json_object_new_object();
+static int get_default_route(struct json_object *ret) {
 	int nlfd = socket(AF_NETLINK, SOCK_RAW, NETLINK_ROUTE);
 	if (nlfd < 0) {
 		perror("can't open RTNL socket");
-		return NULL;
+		return -1;
 	}
 	struct sockaddr_nl snl = {
 		.nl_family = AF_NETLINK, .nl_groups = RTMGRP_IPV6_ROUTE,
@@ -275,17 +273,17 @@ static struct json_object * get_default_route(void) {
 				/* Falls through. */
 			default:
 				if (rtnl_handle_msg(nh, &route) == true) {
-					json_object_object_add(ret, "src", json_object_new_string(print_ip(&route.src_prefix)));
-					json_object_object_add(ret, "via", json_object_new_string(print_ip(&route.gw)));
+					json_object_object_add(ret, "gateway_src", json_object_new_string(print_ip(&route.src_prefix)));
+					json_object_object_add(ret, "gateway_nexthop", json_object_new_string(print_ip(&route.gw)));
 					char ifname[IFNAMSIZ];
-					json_object_object_add(ret, "interface", json_object_new_string(if_indextoname(route.ifindex, ifname)));
+					json_object_object_add(ret, "gateway_interface", json_object_new_string(if_indextoname(route.ifindex, ifname)));
 				}
 				break;
 		}
 	}
 
 	close(nlfd);
-	return ret;
+	return 0;
 }
 
 static int babeld_connect() {
@@ -905,7 +903,7 @@ static struct json_object * respondd_provider_statistics(void) {
 
 	json_object_object_add(ret, "clients", get_clients());
 	json_object_object_add(ret, "traffic", get_traffic());
-	json_object_object_add(ret, "gateway_nexthop", get_default_route());
+	get_default_route(ret);
 
 	return ret;
 }
